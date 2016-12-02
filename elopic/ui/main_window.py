@@ -17,14 +17,66 @@ class MainWindow(QtGui.QMainWindow):
         self.pic_area = CentralWidget(self.left_path, self.right_path, parent=self)
         self.setCentralWidget(self.pic_area)
 
-        # btn1 = QtGui.QPushButton("Button 1", self)
-        # btn1.clicked.connect(self.button_clicked)
-
         self.statusBar()
 
-        self.setGeometry(300, 300, 300, 200)
+        self.menubar = self.menuBar()
+        self.file_menu = self._init_filemenu()
+        self.help_menu = self._init_help_menu()
+
+
+        self.setGeometry(100, 100, 1600, 900)
         self.setWindowTitle('EloPic')
         self.show()
+
+    def _init_filemenu(self):
+        exit_action = QtGui.QAction(
+            QtGui.QIcon('elopic/ui/icons/exit.png'),
+            '&Exit',
+            self,
+            shortcut='Ctrl+Q',
+            statusTip='Exit Elopic',
+            triggered=self.close,
+        )
+        select_dir_action = QtGui.QAction(
+            QtGui.QIcon('elopic/ui/icons/folder.png'),
+            '&Open...',
+            self,
+            shortcut='Ctrl+D',
+            statusTip='Select a directory',
+            triggered=self._select_dir,
+        )
+
+        file_menu = self.menubar.addMenu('&File')
+        file_menu.addAction(exit_action)
+        file_menu.addAction(select_dir_action)
+        return file_menu
+
+    def _init_help_menu(self):
+        about_action = QtGui.QAction(
+            '&About',
+            self,
+            triggered=self._about_dialog,
+        )
+
+        about_menu = self.menubar.addMenu('&Help')
+        about_menu.addAction(about_action)
+        return about_menu
+
+    def _select_dir(self):
+        dialog = QtGui.QFileDialog()
+        dialog.setFileMode(QtGui.QFileDialog.Directory)
+        dialog.setOption(QtGui.QFileDialog.ShowDirsOnly)
+        if dialog.exec_():
+            selected_dir = dialog.selectedFiles()
+
+        self.statusBar().showMessage(selected_dir[0])
+
+    def _about_dialog(self):
+        QtGui.QMessageBox.information(
+            self,
+            'About Elopic',
+            'Elopic by Matthias Manhertz\nIcons by https://icons8.com/',
+        )
 
     def button_clicked(self):
         sender = self.sender()
