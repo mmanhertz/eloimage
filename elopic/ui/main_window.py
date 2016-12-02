@@ -1,7 +1,7 @@
 from PySide import QtGui
 
-from elopic.ui.picture_area import PictureArea
-from elopic.ui.elo_button_row import EloButtonRow
+from picture_area import PictureArea
+from elo_button_row import EloButtonRow
 
 
 class MainWindow(QtGui.QMainWindow):

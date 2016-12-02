@@ -1,6 +1,6 @@
 from PySide import QtGui
 
-from elopic.ui.scaled_pixmap_label import ScaledPixmapLabel
+from scaled_pixmap_label import ScaledPixmapLabel
 
 
 class PictureArea(QtGui.QWidget):
