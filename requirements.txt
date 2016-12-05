@@ -2,3 +2,4 @@ tinydb
 PySide
 nose
 sphinx
+ujson
