@@ -1,10 +1,14 @@
 from PySide import QtGui
+from PySide.QtCore import Signal
 
 from picture_area import PictureArea
 from elo_button_row import EloButtonRow
 
 
 class MainWindow(QtGui.QMainWindow):
+
+    directory_selected = Signal(unicode)
+
     def __init__(self, left_image_path, right_image_path):
         super(MainWindow, self).__init__()
         self.left_path = left_image_path
@@ -23,10 +27,8 @@ class MainWindow(QtGui.QMainWindow):
         self.file_menu = self._init_filemenu()
         self.help_menu = self._init_help_menu()
 
-
         self.setGeometry(100, 100, 1600, 900)
         self.setWindowTitle('EloPic')
-        self.show()
 
     def _init_filemenu(self):
         exit_action = QtGui.QAction(
@@ -68,8 +70,7 @@ class MainWindow(QtGui.QMainWindow):
         dialog.setOption(QtGui.QFileDialog.ShowDirsOnly)
         if dialog.exec_():
             selected_dir = dialog.selectedFiles()
-
-        self.statusBar().showMessage(selected_dir[0])
+        self.directory_selected.emit(selected_dir[0])
 
     def _about_dialog(self):
         QtGui.QMessageBox.information(
