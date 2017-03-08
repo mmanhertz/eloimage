@@ -14,6 +14,13 @@ class ScaledPixmapLabel(QtGui.QLabel):
         self.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignCenter)
 
     def resizeEvent(self, event):
+        self._update()
+
+    def change_pixmap(self, pixmap):
+        self._pixmap = pixmap
+        self._update()
+
+    def _update(self):
         self.setPixmap(self._pixmap.scaled(
             self.width(), self.height(),
             QtCore.Qt.KeepAspectRatio))

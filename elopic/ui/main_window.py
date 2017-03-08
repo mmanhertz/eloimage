@@ -1,5 +1,5 @@
 from PySide import QtGui
-from PySide.QtCore import Signal
+from PySide.QtCore import Signal, Slot
 
 from picture_area import PictureArea
 from elo_button_row import EloButtonRow
@@ -20,6 +20,8 @@ class MainWindow(QtGui.QMainWindow):
 
         self.pic_area = CentralWidget(self.left_path, self.right_path, parent=self)
         self.setCentralWidget(self.pic_area)
+
+        self.pic_area.buttons.left_chosen.connect(self.button_clicked)
 
         self.statusBar()
 
@@ -79,10 +81,17 @@ class MainWindow(QtGui.QMainWindow):
             'Elopic by Matthias Manhertz\nIcons by https://icons8.com/',
         )
 
+    @Slot()
     def button_clicked(self):
         sender = self.sender()
-        self.statusBar().showMessage(sender.text() + ' was pressed')
-        self.pic_area.set_pictures(self.right_path, self.left_path)
+        #self.statusBar().showMessage(sender.text() + ' was pressed')
+        self.statusBar().showMessage('Button was pressed')
+        self.change_pictures(self.right_path, self.left_path)
+
+    def change_pictures(self, left_image_path, right_image_path):
+        self.left_path = left_image_path
+        self.right_path = right_image_path
+        self.pic_area.change_pictures(left_image_path, right_image_path)
 
 
 class CentralWidget(QtGui.QWidget):
@@ -101,3 +110,6 @@ class CentralWidget(QtGui.QWidget):
         vbox.addWidget(self.pic_area, stretch=100)
         vbox.addWidget(self.buttons, stretch=1)
         self.setLayout(vbox)
+
+    def change_pictures(self, left_image_path, right_image_path):
+        self.pic_area.change_pictures(left_image_path, right_image_path)

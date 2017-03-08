@@ -2,6 +2,9 @@ from __future__ import division
 import math
 
 
+INITIAL_ELO_SCORE = 1000
+
+
 class EloRating:
 
     def __init__(self, k_function=lambda x: 32, advantage_factor=400.0):
