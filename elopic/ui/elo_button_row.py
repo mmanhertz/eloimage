@@ -19,23 +19,32 @@ class EloButtonRow(QtGui.QWidget):
         self._btn_del_right = None
 
         self._init_ui()
+        self._init_signals()
 
     def _init_ui(self):
 
         hbox = QtGui.QHBoxLayout(self)
 
-        self._btn_del_left = self._init_button(hbox, 'icons/delete.png', self.left_deleted)
+        self._btn_del_left = self._init_button(hbox, 'icons/delete.png', 'Delete Left Picture')
         hbox.addStretch(1)
-        self._btn_left = self._init_button(hbox, 'icons/check.png', self.left_chosen)
-        self._btn_right = self._init_button(hbox, 'icons/check.png', self.right_chosen)
+        self._btn_left = self._init_button(hbox, 'icons/check.png', 'Choose Left Picture')
+        self._btn_right = self._init_button(hbox, 'icons/check.png', 'Choose Right Picture')
         hbox.addStretch(1)
-        self._btn_del_right = self._init_button(hbox, 'icons/delete.png', self.right_deleted)
+        self._btn_del_right = self._init_button(hbox, 'icons/delete.png', 'Delete Right Picture')
 
         self.setLayout(hbox)
 
-    def _init_button(self, layout, icon_path, signal):
+    def _init_signals(self):
+        self._btn_del_left.clicked.connect(self.left_deleted)
+        self._btn_left.clicked.connect(self.left_chosen)
+        self._btn_right.clicked.connect(self.right_chosen)
+        self._btn_del_right.clicked.connect(self.right_deleted)
+
+    def _init_button(self, layout, icon_path, text):
         button = QtGui.QPushButton('', self)
-        button.clicked.connect(signal.emit)
+        button.setToolTip(text)
+        # button.clicked.connect(signal.emit)
+        # signal = button.clicked
         button.setIcon(QtGui.QIcon(icon_path))
         layout.addWidget(button)
         return button

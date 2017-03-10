@@ -87,5 +87,5 @@ class EloPicDB:
         # Image already in DB. -> we are fine
         return
 
-    def get_random_images(self):
-        return random.sample(self._db.all(), 2)
+    def get_random_images(self, count):
+        return random.sample(self._db.all(), count)

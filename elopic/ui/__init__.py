@@ -1,3 +1,5 @@
 from main_window import MainWindow
 from picture_area import PictureArea
+from elo_button_row import EloButtonRow
+from central_widget import CentralWidget
 from scaled_pixmap_label import ScaledPixmapLabel

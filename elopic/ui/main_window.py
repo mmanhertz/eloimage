@@ -1,27 +1,34 @@
 from PySide import QtGui
 from PySide.QtCore import Signal, Slot
 
-from picture_area import PictureArea
-from elo_button_row import EloButtonRow
+from central_widget import CentralWidget
+
+LEFT = 0
+RIGHT = 1
 
 
 class MainWindow(QtGui.QMainWindow):
 
     directory_selected = Signal(unicode)
+    picture_chosen = Signal(int)
+    picture_deleted = Signal(int)
 
     def __init__(self, left_image_path, right_image_path):
         super(MainWindow, self).__init__()
         self.left_path = left_image_path
         self.right_path = right_image_path
-        self.pic_area = None
+        self.central_widget = None
         self.init_ui()
 
     def init_ui(self):
 
-        self.pic_area = CentralWidget(self.left_path, self.right_path, parent=self)
-        self.setCentralWidget(self.pic_area)
+        self.central_widget = CentralWidget(self.left_path, self.right_path, parent=self)
+        self.setCentralWidget(self.central_widget)
 
-        self.pic_area.buttons.left_chosen.connect(self.button_clicked)
+        self.central_widget.left_chosen.connect(self._left_chosen)
+        self.central_widget.left_deleted.connect(self._left_deleted)
+        self.central_widget.right_chosen.connect(self._right_chosen)
+        self.central_widget.right_deleted.connect(self._right_deleted)
 
         self.statusBar()
 
@@ -74,6 +81,22 @@ class MainWindow(QtGui.QMainWindow):
             selected_dir = dialog.selectedFiles()
         self.directory_selected.emit(selected_dir[0])
 
+    @Slot()
+    def _left_chosen(self):
+        self.picture_chosen.emit(LEFT)
+
+    @Slot()
+    def _left_deleted(self):
+        self.picture_deleted.emit(LEFT)
+
+    @Slot()
+    def _right_chosen(self):
+        self.picture_chosen.emit(RIGHT)
+
+    @Slot()
+    def _right_deleted(self):
+        self.picture_deleted.emit(RIGHT)
+
     def _about_dialog(self):
         QtGui.QMessageBox.information(
             self,
@@ -84,32 +107,12 @@ class MainWindow(QtGui.QMainWindow):
     @Slot()
     def button_clicked(self):
         sender = self.sender()
-        #self.statusBar().showMessage(sender.text() + ' was pressed')
-        self.statusBar().showMessage('Button was pressed')
+        self.statusBar().showMessage(sender.toolTip() + ' was pressed')
         self.change_pictures(self.right_path, self.left_path)
 
     def change_pictures(self, left_image_path, right_image_path):
         self.left_path = left_image_path
         self.right_path = right_image_path
-        self.pic_area.change_pictures(left_image_path, right_image_path)
+        self.central_widget.change_pictures(left_image_path, right_image_path)
 
 
-class CentralWidget(QtGui.QWidget):
-    def __init__(self, left_image_path, right_image_path, parent=None):
-
-        super(CentralWidget, self).__init__(parent=parent)
-        self.init_ui(left_image_path, right_image_path)
-
-    def init_ui(self, left_image_path, right_image_path):
-
-        vbox = QtGui.QVBoxLayout(self)
-
-        self.pic_area = PictureArea(left_image_path, right_image_path, parent=self)
-        self.buttons = EloButtonRow(parent=self)
-
-        vbox.addWidget(self.pic_area, stretch=100)
-        vbox.addWidget(self.buttons, stretch=1)
-        self.setLayout(vbox)
-
-    def change_pictures(self, left_image_path, right_image_path):
-        self.pic_area.change_pictures(left_image_path, right_image_path)
