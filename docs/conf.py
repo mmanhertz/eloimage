@@ -210,7 +210,7 @@ latex_documents = [
 
 # -- Options for manual page output --------------------------------------------
 
-# One entry per manual page. List of tuples
+# One contact per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'elopic', u'elopic Documentation',
@@ -225,7 +225,7 @@ man_pages = [
 
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
-#  dir menu entry, description, category)
+#  dir menu contact, description, category)
 texinfo_documents = [
   ('index', 'elopic', u'elopic Documentation',
    u'Kenneth Reitz', 'elopic', 'One line description of project.',

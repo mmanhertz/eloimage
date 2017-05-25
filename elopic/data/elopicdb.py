@@ -1,5 +1,4 @@
 import random
-import sys
 from os import path, listdir
 
 from tinydb import Query
@@ -8,7 +7,7 @@ from tinydb import TinyDB
 from logic.elo import INITIAL_ELO_SCORE
 
 ELOPIC_DB_NAME = 'elopic.data'
-ELOPIC_SUPPORTED_EXTENSIONS = ['.jpg', '.jpeg']
+ELOPIC_EXTENSIONS = ['.jpg', '.jpeg']
 
 
 class EloPicDBError(Exception):
@@ -29,8 +28,8 @@ class EloPicDB:
         """
         Reads the EloImages from `directory`.
 
-        If an `elopic.data` file from a previous run exists in the directory, read
-        from there (doing a consistency check for moved / added / deleted
+        If an `elopic.data` file from a previous run exists in the directory,
+        read from there (doing a consistency check for moved / added / deleted
         files).
         Otherwise read the images in the directory and create an initial
         `elopic.data`.
@@ -63,9 +62,10 @@ class EloPicDB:
         # TODO: Use os.walk to find files recursively in subdirs.
         # TODO: Use hash values instead of filenames to distinguish images,
         #       possibly find similar / duplicate images
-        # TODO: Files that are not (any longer) in the directory are removed from the data?
+        # TODO: Files that are not (any longer) in the directory are removed
+        #       from the data?
         for img in listdir(self._dir):
-            if any(img.lower().endswith(ext) for ext in ELOPIC_SUPPORTED_EXTENSIONS):
+            if any(img.lower().endswith(ext) for ext in ELOPIC_EXTENSIONS):
                 try:
                     self._validate_image(path.join(self._dir, img))
                 except Exception as err:
@@ -82,10 +82,21 @@ class EloPicDB:
 
         if len(result) > 1:
             # Image in DB more than once -> raise
-            raise EloPicDBError('Multiple entry for the same image: "{}".'.format(image_path))
+            raise EloPicDBError(
+                'Multiple entries for the same image: "{}".'.format(image_path)
+            )
 
         # Image already in DB. -> we are fine
         return
 
     def get_random_images(self, count):
         return random.sample(self._db.all(), count)
+
+    def get_rating(self, image_path):
+        Image = Query()
+        image = self._db.get(Image.path == image_path)
+        return image['rating']
+
+    def update_rating(self, image_path, rating):
+        Image = Query()
+        self._db.update({'rating': rating}, Image.path == image_path)

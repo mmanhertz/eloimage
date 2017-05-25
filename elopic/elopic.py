@@ -1,7 +1,10 @@
+from __future__ import unicode_literals
+
 from PySide.QtCore import QObject, Slot
 
 from ui import MainWindow
 from data import EloPicDB
+from logic import EloRating
 
 LEFT = 0
 RIGHT = 1
@@ -29,26 +32,39 @@ class EloPic(QObject):
         self.ui.statusBar().showMessage('Selected Dir: ' + directory)
         self.data.load_from_disk(directory)
         left_image, right_image = self.data.get_random_images(2)
-        #self.ui.statusBar().showMessage('Left: {} | Right: {}'.format(left_image['path'], right_image['path']))
         self.ui.change_pictures(left_image['path'], right_image['path'])
 
-    @Slot(int)
-    def handle_picture_chosen(self, pic_chosen):
+    @Slot(unicode, unicode)
+    def handle_picture_chosen(self, winner, loser):
         # TODO: Actually assign ELO scores
-        self._randomize_picture(BOTH)
+        self._calculate_new_scores(winner, loser)
+        self._randomize_picture()
 
-    @Slot(int)
+    @Slot(unicode)
     def handle_picture_deleted(self, pic_deleted):
         # TODO: Actually "delete" picture
         self._randomize_picture(pic_deleted)
 
-
-    def _randomize_picture(self, pic_to_randomize=BOTH):
+    def _randomize_picture(self, pic_to_randomize=None):
         left_image, right_image = self.data.get_random_images(2)
-        if pic_to_randomize == LEFT:
+        if pic_to_randomize == None:
+            self.ui.change_pictures(left_image['path'], right_image['path'])
+        elif pic_to_randomize == self.ui.left_path:
             self.ui.change_pictures(left_image['path'], self.ui.right_path)
-        elif pic_to_randomize == RIGHT:
+        elif pic_to_randomize == self.ui.right_path:
             self.ui.change_pictures(self.ui.left_path, right_image['path'])
         else:
-            self.ui.change_pictures(left_image['path'], right_image['path'])
+            raise ValueError(
+                '{} cannot be replaced. It does not match the displayed images.'
+            )
+
+    def _calculate_new_scores(self, winner, loser):
+        elo = EloRating()
+        winner_rating, loser_rating = elo.calculate_new_rating(
+            self.data.get_rating(winner),
+            self.data.get_rating(loser),
+            1
+        )
+        self.data.update_rating(winner, winner_rating)
+        self.data.update_rating(loser, loser_rating)
 

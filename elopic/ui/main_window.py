@@ -3,26 +3,27 @@ from PySide.QtCore import Signal, Slot
 
 from central_widget import CentralWidget
 
-LEFT = 0
-RIGHT = 1
-
 
 class MainWindow(QtGui.QMainWindow):
 
     directory_selected = Signal(unicode)
-    picture_chosen = Signal(int)
-    picture_deleted = Signal(int)
+    picture_chosen = Signal(unicode, unicode)  # winner, loser
+    picture_deleted = Signal(unicode)
 
     def __init__(self, left_image_path, right_image_path):
         super(MainWindow, self).__init__()
-        self.left_path = left_image_path
-        self.right_path = right_image_path
+        self.left_path = "" #left_image_path
+        self.right_path = "" #right_image_path
         self.central_widget = None
         self.init_ui()
 
     def init_ui(self):
 
-        self.central_widget = CentralWidget(self.left_path, self.right_path, parent=self)
+        self.central_widget = CentralWidget(
+            self.left_path,
+            self.right_path,
+            parent=self
+        )
         self.setCentralWidget(self.central_widget)
 
         self.central_widget.left_chosen.connect(self._left_chosen)
@@ -83,19 +84,19 @@ class MainWindow(QtGui.QMainWindow):
 
     @Slot()
     def _left_chosen(self):
-        self.picture_chosen.emit(LEFT)
+        self.picture_chosen.emit(self.left_path, self.right_path)
 
     @Slot()
     def _left_deleted(self):
-        self.picture_deleted.emit(LEFT)
+        self.picture_deleted.emit(self.left_path)
 
     @Slot()
     def _right_chosen(self):
-        self.picture_chosen.emit(RIGHT)
+        self.picture_chosen.emit(self.right_path, self.left_path)
 
     @Slot()
     def _right_deleted(self):
-        self.picture_deleted.emit(RIGHT)
+        self.picture_deleted.emit(self.right_path)
 
     def _about_dialog(self):
         QtGui.QMessageBox.information(

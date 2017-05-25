@@ -21,7 +21,11 @@ class CentralWidget(QtGui.QWidget):
 
         vbox = QtGui.QVBoxLayout(self)
 
-        self.pic_area = PictureArea(left_image_path, right_image_path, parent=self)
+        self.pic_area = PictureArea(
+            left_image_path,
+            right_image_path,
+            parent=self
+        )
         self.buttons = EloButtonRow(parent=self)
 
         vbox.addWidget(self.pic_area, stretch=100)

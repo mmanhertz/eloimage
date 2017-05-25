@@ -4,8 +4,8 @@ from PySide import QtGui, QtCore
 class ScaledPixmapLabel(QtGui.QLabel):
     """The ScaledPixmapLabel contains a pixmap, which is correctly resized
     with the label itself.
-
     """
+
     def __init__(self, pixmap, *args, **kwargs):
         QtGui.QLabel.__init__(self)
         self._pixmap = pixmap
@@ -21,6 +21,7 @@ class ScaledPixmapLabel(QtGui.QLabel):
         self._update()
 
     def _update(self):
-        self.setPixmap(self._pixmap.scaled(
-            self.width(), self.height(),
-            QtCore.Qt.KeepAspectRatio))
+        if not self._pixmap.isNull():
+            self.setPixmap(self._pixmap.scaled(
+                self.width(), self.height(),
+                QtCore.Qt.KeepAspectRatio))
