@@ -2,6 +2,7 @@ from PySide import QtGui
 from PySide.QtCore import Signal, Slot
 
 from central_widget import CentralWidget
+from ui.table_window import TableWindow, data_list, header
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -12,8 +13,8 @@ class MainWindow(QtGui.QMainWindow):
 
     def __init__(self, left_image_path, right_image_path):
         super(MainWindow, self).__init__()
-        self.left_path = "" #left_image_path
-        self.right_path = "" #right_image_path
+        self.left_path = ""  # left_image_path
+        self.right_path = ""  # right_image_path
         self.central_widget = None
         self.init_ui()
 
@@ -36,6 +37,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menubar = self.menuBar()
         self.file_menu = self._init_filemenu()
         self.help_menu = self._init_help_menu()
+        self.ranking = TableWindow([('', 0)], ('path', 'rating'))
 
         self.setGeometry(100, 100, 1600, 900)
         self.setWindowTitle('EloPic')
@@ -57,10 +59,19 @@ class MainWindow(QtGui.QMainWindow):
             statusTip='Select a directory',
             triggered=self._select_dir,
         )
+        show_list_action = QtGui.QAction(
+            QtGui.QIcon('elopic/ui/icons/ranking.png'),
+            '&Ranking...',
+            self,
+            shortcut='Ctrl+R',
+            statusTip='Show Ranking',
+            triggered=self._show_ranking,
+        )
 
         file_menu = self.menubar.addMenu('&File')
         file_menu.addAction(exit_action)
         file_menu.addAction(select_dir_action)
+        file_menu.addAction(show_list_action)
         return file_menu
 
     def _init_help_menu(self):
@@ -81,6 +92,9 @@ class MainWindow(QtGui.QMainWindow):
         if dialog.exec_():
             selected_dir = dialog.selectedFiles()
         self.directory_selected.emit(selected_dir[0])
+
+    def _show_ranking(self):
+        self.ranking.show()
 
     @Slot()
     def _left_chosen(self):
@@ -115,5 +129,9 @@ class MainWindow(QtGui.QMainWindow):
         self.left_path = left_image_path
         self.right_path = right_image_path
         self.central_widget.change_pictures(left_image_path, right_image_path)
+
+    @Slot()
+    def handle_rating_updated(self, new_ratings):
+        self.ranking.update(new_ratings)
 
 

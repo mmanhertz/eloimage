@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from PySide.QtCore import QObject, Slot
+from PySide.QtCore import Signal
 
 from ui import MainWindow
 from data import EloPicDB
@@ -13,6 +14,8 @@ BOTH = 2
 
 class EloPic(QObject):
 
+    rating_updated = Signal(list)
+
     def __init__(self):
         super(EloPic, self).__init__()
         self.ui = MainWindow(
@@ -23,6 +26,7 @@ class EloPic(QObject):
         self.ui.directory_selected.connect(self.handle_directory_selection)
         self.ui.picture_chosen.connect(self.handle_picture_chosen)
         self.ui.picture_deleted.connect(self.handle_picture_deleted)
+        self.rating_updated.connect(self.ui.handle_rating_updated)
 
     def show(self):
         self.ui.show()
@@ -67,4 +71,5 @@ class EloPic(QObject):
         )
         self.data.update_rating(winner, winner_rating)
         self.data.update_rating(loser, loser_rating)
+        self.rating_updated.emit(self.data.to_list())
 

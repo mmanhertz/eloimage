@@ -100,3 +100,9 @@ class EloPicDB:
     def update_rating(self, image_path, rating):
         Image = Query()
         self._db.update({'rating': rating}, Image.path == image_path)
+
+    def to_list(self):
+        return [entry.values() for entry in self._db.all()]
+
+    def get_headers(self):
+        return self._db.all()[0].keys()
