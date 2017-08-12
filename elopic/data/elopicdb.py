@@ -5,7 +5,7 @@ from os import path, listdir
 from tinydb import Query
 from tinydb import TinyDB
 
-from logic.elo import INITIAL_ELO_SCORE
+from elopic.logic.elo import INITIAL_ELO_SCORE
 
 ELOPIC_DB_NAME = 'elopic.data'
 ELOPIC_EXTENSIONS = ['.jpg', '.jpeg']

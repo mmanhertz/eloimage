@@ -2,7 +2,8 @@ from PySide import QtGui
 from PySide.QtCore import Signal, Slot, QEvent, Qt
 
 from central_widget import CentralWidget
-from ui.table_window import TableWindow
+from table_window import TableWindow
+from elopic.utils import resource_path
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -57,7 +58,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def _init_filemenu(self):
         exit_action = QtGui.QAction(
-            QtGui.QIcon('elopic/ui/icons/exit.png'),
+            QtGui.QIcon(resource_path('icons/exit.png')),
             '&Exit',
             self,
             shortcut='Ctrl+Q',
@@ -65,7 +66,7 @@ class MainWindow(QtGui.QMainWindow):
             triggered=self.close,
         )
         select_dir_action = QtGui.QAction(
-            QtGui.QIcon('elopic/ui/icons/folder.png'),
+            QtGui.QIcon(resource_path('icons/folder.png')),
             '&Open...',
             self,
             shortcut='Ctrl+D',
@@ -73,7 +74,7 @@ class MainWindow(QtGui.QMainWindow):
             triggered=self._select_dir,
         )
         show_list_action = QtGui.QAction(
-            QtGui.QIcon('elopic/ui/icons/ranking.png'),
+            QtGui.QIcon(resource_path('icons/ranking.png')),
             '&Ranking...',
             self,
             shortcut='Ctrl+R',

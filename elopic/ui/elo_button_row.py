@@ -1,11 +1,13 @@
 from PySide import QtGui
 from PySide.QtCore import Signal
 
+from elopic.utils import resource_path
+
 
 class EloButtonRow(QtGui.QWidget):
 
-    DEL_ICON = 'elopic/ui/icons/delete.png'
-    CHECK_ICON = 'elopic/ui/icons/check.png'
+    DEL_ICON = resource_path('icons/delete.png')
+    CHECK_ICON = resource_path('icons/check.png')
 
     left_chosen = Signal()
     right_chosen = Signal()

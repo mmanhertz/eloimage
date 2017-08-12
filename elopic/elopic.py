@@ -51,7 +51,6 @@ class EloPic(QObject):
 
     @Slot(unicode, unicode)
     def handle_picture_chosen(self, winner, loser):
-        # TODO: Actually assign ELO scores
         self._calculate_new_scores(winner, loser)
         self._randomize_picture()
 
