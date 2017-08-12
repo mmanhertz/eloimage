@@ -2,7 +2,7 @@ from PySide import QtGui
 from PySide.QtCore import Signal, Slot
 
 from central_widget import CentralWidget
-from ui.table_window import TableWindow, data_list, header
+from ui.table_window import TableWindow
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -10,6 +10,7 @@ class MainWindow(QtGui.QMainWindow):
     directory_selected = Signal(unicode)
     picture_chosen = Signal(unicode, unicode)  # winner, loser
     picture_deleted = Signal(unicode)
+    export_top_x_selected = Signal(int)
 
     def __init__(self, left_image_path, right_image_path):
         super(MainWindow, self).__init__()
@@ -38,6 +39,7 @@ class MainWindow(QtGui.QMainWindow):
         self.file_menu = self._init_filemenu()
         self.help_menu = self._init_help_menu()
         self.ranking = TableWindow([('', 0)], ('path', 'rating'))
+        self.ranking.export_top_x_clicked.connect(self.handle_export_top_x)
 
         self.setGeometry(100, 100, 1600, 900)
         self.setWindowTitle('EloPic')
@@ -133,5 +135,11 @@ class MainWindow(QtGui.QMainWindow):
     @Slot()
     def handle_rating_updated(self, new_ratings):
         self.ranking.update(new_ratings)
+
+    @Slot(int)
+    def handle_export_top_x(self, x):
+        self.statusBar().showMessage('Exporting Top {}'.format(x))
+        self.export_top_x_selected.emit(x)
+
 
 

@@ -1,5 +1,10 @@
 from __future__ import unicode_literals
 
+import os
+
+import shutil
+
+import errno
 from PySide.QtCore import QObject, Slot
 from PySide.QtCore import Signal
 
@@ -14,6 +19,8 @@ BOTH = 2
 
 class EloPic(QObject):
 
+    EXPORT_DIR_NAME = 'EloPic Top {}'
+
     rating_updated = Signal(list)
 
     def __init__(self):
@@ -23,9 +30,11 @@ class EloPic(QObject):
             "D:/Dropbox/Coding/pyside-tutorial/IMG_4816.jpg",
         )
         self.data = EloPicDB()
+        self.current_directory = ''
         self.ui.directory_selected.connect(self.handle_directory_selection)
         self.ui.picture_chosen.connect(self.handle_picture_chosen)
         self.ui.picture_deleted.connect(self.handle_picture_deleted)
+        self.ui.export_top_x_selected.connect(self.handle_export_top_x)
         self.rating_updated.connect(self.ui.handle_rating_updated)
 
     def show(self):
@@ -33,6 +42,7 @@ class EloPic(QObject):
 
     @Slot(unicode)
     def handle_directory_selection(self, directory):
+        self.current_directory = directory
         self.ui.statusBar().showMessage('Selected Dir: ' + directory)
         self.data.load_from_disk(directory)
         self.rating_updated.emit(self.data.to_list())
@@ -49,6 +59,41 @@ class EloPic(QObject):
     def handle_picture_deleted(self, pic_deleted):
         # TODO: Actually "delete" picture
         self._randomize_picture(pic_deleted)
+
+    @Slot(int)
+    def handle_export_top_x(self, x):
+        try:
+            export_basepath = self._get_export_base_path(x)
+            os.makedirs(export_basepath)
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                self._clean_up_directory(export_basepath)
+            else:
+                raise
+        try:
+            for i, original_filepath in enumerate(self.data.get_top_x_filepaths_by_rating(x)):
+                export_filepath = self._get_export_path(original_filepath, export_basepath, i+1)
+                shutil.copyfile(original_filepath, export_filepath)
+        except IOError:
+            self.ui.statusBar().showMessage('Error while exporting!')
+
+    def _get_export_base_path(self, x):
+        return os.path.join(self.current_directory, self.EXPORT_DIR_NAME.format(x))
+
+    @staticmethod
+    def _clean_up_directory(path):
+        for item in os.listdir(path):
+            file_path = os.path.join(path, item)
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+
+    def _get_export_path(self, original_path, export_basepath, rank):
+        base, filename = os.path.split(original_path)
+        filename = self._add_rank_to_filename(filename, rank)
+        return os.path.join(export_basepath, filename)
+
+    def _add_rank_to_filename(self, filename, rank):
+        return '{}_{}'.format(str(rank).zfill(4), filename)
 
     def _randomize_picture(self, pic_to_randomize=None):
         left_image, right_image = self.data.get_random_images(2)

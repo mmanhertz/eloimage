@@ -1,4 +1,5 @@
 import random
+from operator import itemgetter
 from os import path, listdir
 
 from tinydb import Query
@@ -106,3 +107,6 @@ class EloPicDB:
 
     def get_headers(self):
         return self._db.all()[0].keys()
+
+    def get_top_x_filepaths_by_rating(self, x):
+        return [item['path'] for item in sorted(self._db.all(), key=itemgetter('rating'), reverse=True)[:x]]
