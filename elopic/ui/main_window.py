@@ -1,5 +1,5 @@
 from PySide import QtGui
-from PySide.QtCore import Signal, Slot
+from PySide.QtCore import Signal, Slot, QEvent, Qt
 
 from central_widget import CentralWidget
 from ui.table_window import TableWindow
@@ -32,6 +32,7 @@ class MainWindow(QtGui.QMainWindow):
         self.central_widget.left_deleted.connect(self._left_deleted)
         self.central_widget.right_chosen.connect(self._right_chosen)
         self.central_widget.right_deleted.connect(self._right_deleted)
+        self.central_widget.installEventFilter(self)
 
         self.statusBar()
 
@@ -43,6 +44,16 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setGeometry(100, 100, 1600, 900)
         self.setWindowTitle('EloPic')
+
+    def eventFilter(self, widget, event):
+        if event.type() == QEvent.KeyPress and widget is self.central_widget:
+            key = event.key()
+            if key == Qt.Key_A:
+                self._left_chosen()
+            elif key == Qt.Key_D:
+                self._right_chosen()
+            return True
+        return QtGui.QMainWindow.eventFilter(self, widget, event)
 
     def _init_filemenu(self):
         exit_action = QtGui.QAction(
@@ -100,6 +111,7 @@ class MainWindow(QtGui.QMainWindow):
 
     @Slot()
     def _left_chosen(self):
+        self.statusBar().showMessage('Left picture was chosen')
         self.picture_chosen.emit(self.left_path, self.right_path)
 
     @Slot()
@@ -108,6 +120,7 @@ class MainWindow(QtGui.QMainWindow):
 
     @Slot()
     def _right_chosen(self):
+        self.statusBar().showMessage('Right picture was chosen')
         self.picture_chosen.emit(self.right_path, self.left_path)
 
     @Slot()
