@@ -35,6 +35,7 @@ class EloPic(QObject):
     def handle_directory_selection(self, directory):
         self.ui.statusBar().showMessage('Selected Dir: ' + directory)
         self.data.load_from_disk(directory)
+        self.rating_updated.emit(self.data.to_list())
         left_image, right_image = self.data.get_random_images(2)
         self.ui.change_pictures(left_image['path'], right_image['path'])
 
