@@ -6,6 +6,7 @@ from tinydb import Query
 from tinydb import TinyDB
 from tinydb.operations import increment
 
+import settings
 from elopic.logic.elo import INITIAL_ELO_SCORE
 
 ELOPIC_DB_NAME = 'elopic.data'
@@ -100,7 +101,8 @@ class EloPicDB:
         return
 
     def get_random_images(self, count):
-        return random.sample(self._db.all(), count)
+        images = settings.STRATEGY(self._db.all(), count)
+        return images
 
     def get_rating(self, image_path):
         Image = Query()
