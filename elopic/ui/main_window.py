@@ -40,7 +40,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menubar = self.menuBar()
         self.file_menu = self._init_filemenu()
         self.help_menu = self._init_help_menu()
-        self.ranking = TableWindow([('', 0)], ('path', 'rating'))
+        self.ranking = TableWindow([('', 0)], ('path', 'seen_count', 'rating'))
         self.ranking.export_top_x_clicked.connect(self.handle_export_top_x)
 
         self.setGeometry(100, 100, 1600, 900)

@@ -4,6 +4,7 @@ from os import path, listdir
 
 from tinydb import Query
 from tinydb import TinyDB
+from tinydb.operations import increment
 
 from elopic.logic.elo import INITIAL_ELO_SCORE
 
@@ -79,7 +80,11 @@ class EloPicDB:
         result = self._db.search(Image.path == image_path)
         if len(result) == 0:
             # Image not in DB yet -> add it
-            self._db.insert({'path': image_path, 'rating': INITIAL_ELO_SCORE})
+            self._db.insert({
+                'path': image_path,
+                'rating': INITIAL_ELO_SCORE,
+                'seen_count': 0,
+            })
 
         if len(result) > 1:
             # Image in DB more than once -> raise
@@ -87,7 +92,11 @@ class EloPicDB:
                 'Multiple entries for the same image: "{}".'.format(image_path)
             )
 
-        # Image already in DB. -> we are fine
+        # migration for old DB files: add 'seen_count' field, if it does not exist already
+        if 'seen_count' not in result[0]:
+            self._db.update({'seen_count': 0}, Image.path == image_path)
+
+        # Image already in DB and now fully migrated.
         return
 
     def get_random_images(self, count):
@@ -101,6 +110,7 @@ class EloPicDB:
     def update_rating(self, image_path, rating):
         Image = Query()
         self._db.update({'rating': rating}, Image.path == image_path)
+        self._db.update(increment('seen_count'), Image.path == image_path)
 
     def to_list(self):
         return [entry.values() for entry in self._db.all()]
