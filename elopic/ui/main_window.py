@@ -10,7 +10,7 @@ class MainWindow(QtGui.QMainWindow):
 
     directory_selected = Signal(unicode)
     picture_chosen = Signal(unicode, unicode)  # winner, loser
-    picture_deleted = Signal(unicode)
+    picture_deleted = Signal(list)
     export_top_x_selected = Signal(int)
 
     def __init__(self, left_image_path, right_image_path):
@@ -40,7 +40,7 @@ class MainWindow(QtGui.QMainWindow):
         self.menubar = self.menuBar()
         self.file_menu = self._init_filemenu()
         self.help_menu = self._init_help_menu()
-        self.ranking = TableWindow([('', 0)], ('path', 'seen_count', 'rating'))
+        self.ranking = TableWindow([('', 0)], ('path', 'seen_count', 'rating', 'ignore'))
         self.ranking.export_top_x_clicked.connect(self.handle_export_top_x)
 
         self.setGeometry(100, 100, 1600, 900)
@@ -53,6 +53,8 @@ class MainWindow(QtGui.QMainWindow):
                 self._left_chosen()
             elif key == Qt.Key_D:
                 self._right_chosen()
+            elif key == Qt.Key_S:
+                self._down_chosen()
             return True
         return QtGui.QMainWindow.eventFilter(self, widget, event)
 
@@ -117,7 +119,7 @@ class MainWindow(QtGui.QMainWindow):
 
     @Slot()
     def _left_deleted(self):
-        self.picture_deleted.emit(self.left_path)
+        self.picture_deleted.emit([self.left_path])
 
     @Slot()
     def _right_chosen(self):
@@ -125,8 +127,13 @@ class MainWindow(QtGui.QMainWindow):
         self.picture_chosen.emit(self.right_path, self.left_path)
 
     @Slot()
+    def _down_chosen(self):
+        self.statusBar().showMessage('Ignore both pictures chosen')
+        self.picture_deleted.emit([self.right_path, self.left_path])
+
+    @Slot()
     def _right_deleted(self):
-        self.picture_deleted.emit(self.right_path)
+        self.picture_deleted.emit([self.right_path])
 
     def _about_dialog(self):
         QtGui.QMessageBox.information(

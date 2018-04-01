@@ -55,9 +55,12 @@ class EloPic(QObject):
         self._randomize_picture()
 
     @Slot(unicode)
-    def handle_picture_deleted(self, pic_deleted):
-        # TODO: Actually "delete" picture
-        self._randomize_picture(pic_deleted)
+    def handle_picture_deleted(self, pics_deleted):
+        self.data.ignore_pictures(pics_deleted)
+        if len(pics_deleted) > 1:
+            self._randomize_picture()
+        else:
+            self._randomize_picture(pics_deleted[0])
 
     @Slot(int)
     def handle_export_top_x(self, x):
@@ -70,7 +73,8 @@ class EloPic(QObject):
             else:
                 raise
         try:
-            for i, original_filepath in enumerate(self.data.get_top_x_filepaths_by_rating(x)):
+            top_x = self.data.get_top_x_filepaths_by_rating(x)
+            for i, original_filepath in enumerate(top_x):
                 export_filepath = self._get_export_path(original_filepath, export_basepath, i+1)
                 shutil.copyfile(original_filepath, export_filepath)
         except IOError:

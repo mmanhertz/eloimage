@@ -1,4 +1,3 @@
-import random
 from operator import itemgetter
 from os import path, listdir
 
@@ -17,7 +16,6 @@ class EloPicDBError(Exception):
     pass
 
 
-# TODO: Add tests for the DB
 class EloPicDB:
     """
     Simple wrapper class for elopic's underlying database. Abstracts all data
@@ -85,6 +83,7 @@ class EloPicDB:
                 'path': image_path,
                 'rating': INITIAL_ELO_SCORE,
                 'seen_count': 0,
+                'ignore': 0,
             })
 
         if len(result) > 1:
@@ -97,11 +96,15 @@ class EloPicDB:
         if 'seen_count' not in result[0]:
             self._db.update({'seen_count': 0}, Image.path == image_path)
 
+        # migration: add 'ignore' field
+        if 'ignore' not in result[0]:
+            self._db.update({'ignore': 0}, Image.path == image_path)
+
         # Image already in DB and now fully migrated.
         return
 
     def get_random_images(self, count):
-        images = settings.STRATEGY(self._db.all(), count)
+        images = settings.STRATEGY(self.get_all(), count)
         return images
 
     def get_rating(self, image_path):
@@ -115,10 +118,25 @@ class EloPicDB:
         self._db.update(increment('seen_count'), Image.path == image_path)
 
     def to_list(self):
-        return [entry.values() for entry in self._db.all()]
+        return [[entry['path'], entry['seen_count'], entry['rating'], entry['ignore']] for entry in self._db.all()]
 
     def get_headers(self):
         return self._db.all()[0].keys()
 
     def get_top_x_filepaths_by_rating(self, x):
-        return [item['path'] for item in sorted(self._db.all(), key=itemgetter('rating'), reverse=True)[:x]]
+        all = self.get_all()
+        top_x = sorted(all, key=itemgetter('rating'), reverse=True)[:x]
+        top_x_paths = [item['path'] for item in top_x]
+        return top_x_paths
+
+    def ignore_pictures(self, images_to_ignore):
+        Image = Query()
+        for image_path in images_to_ignore:
+            self._db.update({'ignore': 1}, Image.path == image_path)
+
+    def get_all(self):
+        Image = Query()
+        return self._db.search(Image.ignore == 0)
+
+    def close(self):
+        self._db.close()
